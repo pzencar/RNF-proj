@@ -19,19 +19,31 @@ def main():
                       nn.ReLU()
                       )
 
-    data = np.array([[0.3, 0.8], [0.1, 0.9], [0.12, 0.44], [0.22, 0.33], [0.123, 0.123087], [0.58, 0.58]])
+    data = np.array([
+                [0.3, 0.8],
+                [0.1, 0.9],
+                [0.12, 0.44],
+                [0.22, 0.33],
+                [0.123, 0.123087],
+                [0.58, 0.58]
+                ])
     data = torch.from_numpy(data)
-    labelss = np.array([[0.8, 0.3], [0.9, 0.1], [0.44, 0.12], [0.33, 0.22], [0.123087, 0.123], [0.58, 0.58]])
+    labelss = np.array([
+                [0.8, 0.3],
+                [0.9, 0.1],
+                [0.44, 0.12],
+                [0.33, 0.22],
+                [0.123087, 0.123],
+                [0.58, 0.58]
+                ])
     labelss = torch.from_numpy(labelss)
-    print(data)
-    print(labelss)
 
 
     # Define the loss
     criterion = nn.MSELoss()
     # Optimizers require the parameters to optimize and a learning rate
     model = model.double()
-    optimizer = optim.SGD(model.parameters(), lr=0.5)
+    optimizer = optim.SGD(model.parameters(), lr=0.1)
     epochs = 2000
     for e in range(epochs):
         running_loss = 0
@@ -56,7 +68,7 @@ def main():
 
     print("\n\n\nTest Data\n")
     print("Expected output: \n", labelss)
-    print("\n", model(data))
+    print("Output: \n", model(data))
 
 if __name__=="__main__":
     main()
