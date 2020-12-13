@@ -57,33 +57,22 @@ class NeuralNetwork(object):
         save output list
         """
 
-        data = pd.read_csv('Real_data/stage1.txt', delimiter= '\s+', index_col=False, header=None)
-        data.columns = ["time", "z", "x", "y", "whatever", "nothing"]
-        print(data)
+        # load data from txt file as pandas DataFrame
+        input_acc_dataFrame = pd.read_csv('Real_data/stage1.txt', delimiter= '\s+', index_col=False, header=None)
+        input_acc_dataFrame.columns = ["time", "z", "x", "y", "whatever", "nothing"]
+        # print(input_acc_dataFrame)
+        
+        # delete unwanted columns
         only_xz_data = data.drop(["time","y", "whatever", "nothing"], axis=1)
         only_xz_data['sum'] = only_xz_data['z'] + only_xz_data['x']
-        print(only_xz_data)
+        # print(only_xz_data)
 
         #test_loc = only_xz_data.loc[0:199, 'sum']
         #print(test_loc)
+
+        # transform pandas DataFrame to torch tensor
         torch_tensor_dataset = torch.tensor(only_xz_data['sum'].values)
+        # size of compared vector
         input_len = 80
         for i in range (input_len, len(torch_tensor_dataset))
-            output_for_current_sample = self.neural_network(torch_tensor_dataset[i - input_len, i])
-        
-
-'''
-data = pd.read_csv('Real_data/stage1.txt', delimiter= '\s+', index_col=False, header=None)
-data.columns = ["time", "z", "x", "y", "whatever", "nothing"]
-print(data)
-only_xz_data = data.drop(["time","y", "whatever", "nothing"], axis=1)
-only_xz_data['sum'] = only_xz_data['z'] + only_xz_data['x']
-print(only_xz_data)
-
-#test_loc = only_xz_data.loc[0:199, 'sum']
-#print(test_loc)
-torch_tensor_dataset = torch.tensor(only_xz_data['sum'].values)
-input_len = 80
-for i in range (input_len, len(torch_tensor_dataset))
-    output_for_current_sample = self.neural_network(torch_tensor_dataset[i - input_len, i])
-'''
+            self.output_for_current_sample = self.neural_network(torch_tensor_dataset[i - input_len, i])
