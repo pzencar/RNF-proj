@@ -1,10 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision.datasets as datasets
-import torchvision.transforms as transforms
+# import torchvision.datasets as datasets
+# import torchvision.transforms as transforms
 import torch.optim as optim
 import numpy as np
+import pandas as pd
 
 def create_train_datasets():
     """
@@ -25,6 +26,9 @@ class NeuralNetwork(object):
     def __init__(self):
         self.layer_init()
         self.load_weights()
+
+        data = pd.read_csv('Real_data/stage1.txt', sep=" ", header=None)
+        data.columns = ["a", "b", "c", "etc."]
 
     def layer_init(self, input_len):
         """
@@ -53,3 +57,33 @@ class NeuralNetwork(object):
         save output list
         """
 
+        data = pd.read_csv('Real_data/stage1.txt', delimiter= '\s+', index_col=False, header=None)
+        data.columns = ["time", "z", "x", "y", "whatever", "nothing"]
+        print(data)
+        only_xz_data = data.drop(["time","y", "whatever", "nothing"], axis=1)
+        only_xz_data['sum'] = only_xz_data['z'] + only_xz_data['x']
+        print(only_xz_data)
+
+        #test_loc = only_xz_data.loc[0:199, 'sum']
+        #print(test_loc)
+        torch_tensor_dataset = torch.tensor(only_xz_data['sum'].values)
+        input_len = 80
+        for i in range (input_len, len(torch_tensor_dataset))
+            output_for_current_sample = self.neural_network(torch_tensor_dataset[i - input_len, i])
+        
+
+'''
+data = pd.read_csv('Real_data/stage1.txt', delimiter= '\s+', index_col=False, header=None)
+data.columns = ["time", "z", "x", "y", "whatever", "nothing"]
+print(data)
+only_xz_data = data.drop(["time","y", "whatever", "nothing"], axis=1)
+only_xz_data['sum'] = only_xz_data['z'] + only_xz_data['x']
+print(only_xz_data)
+
+#test_loc = only_xz_data.loc[0:199, 'sum']
+#print(test_loc)
+torch_tensor_dataset = torch.tensor(only_xz_data['sum'].values)
+input_len = 80
+for i in range (input_len, len(torch_tensor_dataset))
+    output_for_current_sample = self.neural_network(torch_tensor_dataset[i - input_len, i])
+'''
