@@ -44,7 +44,7 @@ def main():
     # Optimizers require the parameters to optimize and a learning rate
     model = model.double()
     optimizer = optim.SGD(model.parameters(), lr=0.1)
-    epochs = 2000
+    epochs = 1000
     for e in range(epochs):
         running_loss = 0
         for images, labels in zip(data, labelss):
@@ -68,6 +68,15 @@ def main():
 
     print("\n\n\nTest Data\n")
     print("Expected output: \n", labelss)
+    data = np.array([
+                [0.29, 0.75],
+                [0.1, 0.9],
+                [0.12, 0.44],
+                [0.22, 0.33],
+                [0.123, 0.123087],
+                [0.58, 0.58]
+                ])
+    data = torch.from_numpy(data)
     print("Output: \n", model(data))
 
 if __name__=="__main__":
