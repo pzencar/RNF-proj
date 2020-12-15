@@ -19,14 +19,22 @@ def main():
                       nn.ReLU()
                       )
 
-    data = np.array([
-                [0.3, 0.8],
-                [0.1, 0.9],
-                [0.12, 0.44],
-                [0.22, 0.33],
-                [0.123, 0.123087],
-                [0.58, 0.58]
-                ])
+    # data = np.array([
+    #             [0.3, 0.8],
+    #             [0.1, 0.9],
+    #             [0.12, 0.44],
+    #             [0.22, 0.33],
+    #             [0.123, 0.123087],
+    #             [0.58, 0.58]
+    #             ])
+    data = np.array([ [1, 1], [2, 2] ])
+    print(data.shape)
+    # data = (np.array([]))
+    # d = [1, 1]
+    # data = np.append([d],[d], axis=0)
+    print(data[0])
+    while True:
+        pass
     data = torch.from_numpy(data)
     labelss = np.array([
                 [0.8, 0.3],

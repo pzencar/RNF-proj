@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def create_train_datasets():
     """
@@ -24,13 +25,14 @@ def create_train_datasets():
 
 class NeuralNetwork(object):
     def __init__(self):
-        self.layer_init(4)
+        self.layer_init(80)
         # self.save_weights("def_weights.txt")
-        self.load_weights("def_weights.txt")
-        self.update_weights()
+        # self.load_weights("def_weights.txt")
+        # self.update_weights()
+        # self.load_training_data("tr_data_test.npy")
+        self.train()
+        self.iterate_through_signal("fuck")
 
-        data = pd.read_csv('Real_data/stage1.txt', sep=" ", header=None)
-        data.columns = ["a", "b", "c", "etc."]
 
     def layer_init(self, input_len):
         """
@@ -40,13 +42,17 @@ class NeuralNetwork(object):
         """
         self.neural_network = nn.Sequential(nn.Linear(input_len, int(3*input_len/4)),
                           nn.ReLU(),
+                          nn.Linear(int(3*input_len/4), int(3*input_len/4)),
+                          nn.ReLU(),
+                          nn.Linear(int(3*input_len/4), int(3*input_len/4)),
+                          nn.ReLU(),
                           nn.Linear(int(3*input_len/4), int(2*input_len/4)),
                           nn.ReLU(),
                           nn.Linear(int(2*input_len/4), int(1*input_len/4)),
                           nn.ReLU(),
                           nn.Linear(int(1*input_len/4), 1),
-                          nn.LogSoftmax(dim=1)
-                          # nn.ReLU()
+                          # nn.LogSoftmax(dim=1)
+                          nn.ReLU()
                           )
         self.neural_network = self.neural_network.double()
         self.read_weights()
@@ -98,35 +104,45 @@ class NeuralNetwork(object):
         self.read_weights()
 
 
+    def load_training_data(self, path):
+        self.training_data_np = np.load(path)
+        self.training_data_np = self.training_data_np
+        # self.training_data_np = [x for x in self.training_data_np]
+        # print(self.training_data_np[0])
+        self.training_data_tensor = torch.tensor(self.training_data_np)
+        print(self.training_data_tensor)
+        # print(self.training_data_tensor)
 
-    def train(self, train_dataset_path):
+    def train(self):
         """
         Load data from train_dataset_path
         Train for data ( check if training correctly->if not restart training )
         Save weights
         """
-        self.load_training_data();
+        self.load_training_data("tr_data_test.npy")
         # Define the loss
-        # criterion = nn.MSELoss()
-        self.criterion = nn.NLLLoss()
+        self.criterion = nn.MSELoss()
+        # self.criterion = nn.NLLLoss()
         # Optimizers require the parameters to optimize and a learning rate
-        self.optimizer = optim.SGD(self.neural_network.parameters(), lr=0.1)
+        self.optimizer = optim.SGD(self.neural_network.parameters(), lr=0.05)
 
-        self.label = np.array([1])
+        # self.label = np.ones((30, 1))
+        self.label = np.array([1.0])
+        print(self.label)
         self.label_tensor = torch.from_numpy(self.label)
-        epochs = 100
+        epochs = 2000
         for e in range(epochs):
             # Training pass
             self.optimizer.zero_grad()
 
             self.output = self.neural_network(self.training_data_tensor)
-            self.loss = criterion(self.output, self.label_tensor)
+            self.loss = self.criterion(self.output, self.label_tensor)
             self.loss.backward()
             self.optimizer.step()
 
             print(e)
             print(self.loss.item)
-            print(output,"\n\n")
+            print(self.output.detach().numpy().tolist(),"\n\n")
         print("Neuron network output: ", self.neural_network(self.training_data_tensor))
         print("\nDo you want to save weights do def_weights.txt ? [y]/[n] >> ", end="")
         save = input()
@@ -139,22 +155,35 @@ class NeuralNetwork(object):
         plot signal with output
         save output list
         """
+        # self.data = pd.read_csv('Real_data/stage1.txt', sep=" ", header=None)
+        # self.data.columns = ["a", "b", "c", "etc."]
         # load data from txt file as pandas DataFrame
-        input_acc_dataFrame = pd.read_csv('Real_data/stage1.txt', delimiter= '\s+', index_col=False, header=None)
-        input_acc_dataFrame.columns = ["time", "z", "x", "y", "whatever", "nothing"]
+        self.input_acc_dataFrame = pd.read_csv('Real_data/stage6.txt', delimiter= '\s+', index_col=False, header=None)
+        self.input_acc_dataFrame.columns = ["time", "z", "x", "y", "whatever", "nothing"]
         # print(input_acc_dataFrame)
         # delete unwanted columns
-        only_xz_data = data.drop(["time","y", "whatever", "nothing"], axis=1)
-        only_xz_data['sum'] = only_xz_data['z'] + only_xz_data['x']
+        self.time = self.input_acc_dataFrame["time"]
+        self.only_xz_data = self.input_acc_dataFrame.drop(["time","y", "whatever", "nothing"], axis=1)
+        self.only_xz_data['sum'] = self.only_xz_data['z'] + self.only_xz_data['x']
         # print(only_xz_data)
         #test_loc = only_xz_data.loc[0:199, 'sum']
         #print(test_loc)
         # transform pandas DataFrame to torch tensor
-        torch_tensor_dataset = torch.tensor(only_xz_data['sum'].values)
+        self.torch_tensor_dataset = torch.tensor(self.only_xz_data['sum'].values, dtype=torch.float64)
+        # self.torch_tensor_dataset[4000:4080] = self.training_data_tensor[0]
+
         # size of compared vector
         input_len = 80
-        for i in range (input_len, len(torch_tensor_dataset))
-            self.output_for_current_sample = self.neural_network(torch_tensor_dataset[i - input_len, i])
+        self.log = []
+        for i in range(input_len, len(self.torch_tensor_dataset)):
+            print(i)
+            self.output_current_sample = self.neural_network(self.torch_tensor_dataset[i-input_len: i])
+            self.log.append(self.output_current_sample.item())
+        plt.plot(self.time[input_len:len(self.time)]/1000, self.log)
+        plt.show()
+
+
+
 
 def main():
     net = NeuralNetwork()
