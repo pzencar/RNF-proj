@@ -89,7 +89,7 @@ def create_tr_data(NoS,Noise,Name):
 
 if __name__ == "__main__":
 
-    create_tr_data(1, 0, "tr_data_test.npy")
+    # create_tr_data(1, 0, "tr_data_test.npy")
     training_data_load = np.load("tr_data_test.npy")
 
     for i in range(len(training_data_load)):
